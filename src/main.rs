@@ -19,4 +19,13 @@ fn main() {
     };
     println!("IFDオフセット: {}", ifd_offset);
     file.seek(SeekFrom::Start(ifd_offset as u64)).unwrap();
+
+    let mut ifd_entry_count_bytes = [0u8; 2];
+    file.read_exact(&mut ifd_entry_count_bytes).unwrap();
+    let ifd_entry_count = if le {
+        u16::from_le_bytes(ifd_entry_count_bytes)
+    } else {
+        u16::from_be_bytes(ifd_entry_count_bytes)
+    };
+    println!("IFDエントリ数: {}", ifd_entry_count);
 }
