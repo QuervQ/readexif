@@ -28,4 +28,59 @@ fn main() {
         u16::from_be_bytes(ifd_entry_count_bytes)
     };
     println!("IFDエントリ数: {}", ifd_entry_count);
+
+    for i in 0..ifd_entry_count {
+        let mut entry_bytes = [0u8; 12];
+        file.read_exact(&mut entry_bytes).unwrap();
+
+        let tag = if le {
+            u16::from_le_bytes([entry_bytes[0], entry_bytes[1]])
+        } else {
+            u16::from_be_bytes([entry_bytes[0], entry_bytes[1]])
+        };
+        let field_type = if le {
+            u16::from_le_bytes([entry_bytes[2], entry_bytes[3]])
+        } else {
+            u16::from_be_bytes([entry_bytes[2], entry_bytes[3]])
+        };
+        let count = if le {
+            u32::from_le_bytes([
+                entry_bytes[4],
+                entry_bytes[5],
+                entry_bytes[6],
+                entry_bytes[7],
+            ])
+        } else {
+            u32::from_be_bytes([
+                entry_bytes[4],
+                entry_bytes[5],
+                entry_bytes[6],
+                entry_bytes[7],
+            ])
+        };
+        let value_offset = if le {
+            u32::from_le_bytes([
+                entry_bytes[8],
+                entry_bytes[9],
+                entry_bytes[10],
+                entry_bytes[11],
+            ])
+        } else {
+            u32::from_be_bytes([
+                entry_bytes[8],
+                entry_bytes[9],
+                entry_bytes[10],
+                entry_bytes[11],
+            ])
+        };
+
+        println!(
+            "エントリ {}: タグ=0x{:04x}, タイプ={}, カウント={}, 値/オフセット={}",
+            i + 1,
+            tag,
+            field_type,
+            count,
+            value_offset
+        );
+    }
 }
