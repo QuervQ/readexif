@@ -100,7 +100,10 @@ fn main() {
             let current_pos = file.stream_position().unwrap();
 
             // オフセット先に移動してデータを読み取る
-            file.seek(SeekFrom::Start(value_offset as u64)).unwrap();
+            if let Err(e) = file.seek(SeekFrom::Start(value_offset as u64)) {
+                eprintln!("オフセット {} へのシークに失敗しました: {}", value_offset, e);
+                return;
+            }
             let mut data = vec![0u8; data_size];
             if let Err(e) = file.read_exact(&mut data) {
                 eprintln!("データの読み込みに失敗しました: {}", e);
