@@ -83,7 +83,10 @@ fn main() {
             value_offset
         );
         let type_size = get_type_size(field_type);
-        let data_size = type_size * count as usize;
+        let count_usize: usize = count.try_into().expect("count is too large to fit in usize");
+        let data_size = type_size
+            .checked_mul(count_usize)
+            .expect("data size overflow when computing buffer length");
 
         if data_size <= 4 {
             // 値が直接埋め込まれている
