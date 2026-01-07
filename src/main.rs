@@ -186,48 +186,62 @@ fn print_value(data: &[u8], field_type: u16, count: u32, le: bool) {
         }
         5 => {
             // RATIONAL (分子/分母)
-            if count <= 2 {
-                for i in 0..count as usize {
-                    if i * 8 + 7 < data.len() {
-                        let numerator = if le {
-                            u32::from_le_bytes([
-                                data[i * 8],
-                                data[i * 8 + 1],
-                                data[i * 8 + 2],
-                                data[i * 8 + 3],
-                            ])
-                        } else {
-                            u32::from_be_bytes([
-                                data[i * 8],
-                                data[i * 8 + 1],
-                                data[i * 8 + 2],
-                                data[i * 8 + 3],
-                            ])
-                        };
-                        let denominator = if le {
-                            u32::from_le_bytes([
-                                data[i * 8 + 4],
-                                data[i * 8 + 5],
-                                data[i * 8 + 6],
-                                data[i * 8 + 7],
-                            ])
-                        } else {
-                            u32::from_be_bytes([
-                                data[i * 8 + 4],
-                                data[i * 8 + 5],
-                                data[i * 8 + 6],
-                                data[i * 8 + 7],
-                            ])
-                        };
-                        println!(
-                            "  → RATIONAL[{}]:  {}/{} = {}",
-                            i,
-                            numerator,
-                            denominator,
-                            numerator as f64 / denominator as f64
-                        );
-                    }
+            // 多すぎる場合は先頭のいくつかのみ表示し、残りは省略を明示する
+            let max_to_print: usize = 10;
+            let total = count as usize;
+            let to_print = if total > max_to_print {
+                max_to_print
+            } else {
+                total
+            };
+
+            for i in 0..to_print {
+                if i * 8 + 7 < data.len() {
+                    let numerator = if le {
+                        u32::from_le_bytes([
+                            data[i * 8],
+                            data[i * 8 + 1],
+                            data[i * 8 + 2],
+                            data[i * 8 + 3],
+                        ])
+                    } else {
+                        u32::from_be_bytes([
+                            data[i * 8],
+                            data[i * 8 + 1],
+                            data[i * 8 + 2],
+                            data[i * 8 + 3],
+                        ])
+                    };
+                    let denominator = if le {
+                        u32::from_le_bytes([
+                            data[i * 8 + 4],
+                            data[i * 8 + 5],
+                            data[i * 8 + 6],
+                            data[i * 8 + 7],
+                        ])
+                    } else {
+                        u32::from_be_bytes([
+                            data[i * 8 + 4],
+                            data[i * 8 + 5],
+                            data[i * 8 + 6],
+                            data[i * 8 + 7],
+                        ])
+                    };
+                    println!(
+                        "  → RATIONAL[{}]:  {}/{} = {}",
+                        i,
+                        numerator,
+                        denominator,
+                        numerator as f64 / denominator as f64
+                    );
                 }
+            }
+
+            if total > max_to_print {
+                println!(
+                    "  → RATIONAL: 最初の {} 個のみ表示しました (全体: {} 個)",
+                    max_to_print, total
+                );
             }
         }
         _ => {}
