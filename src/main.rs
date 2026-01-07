@@ -101,7 +101,7 @@ fn main() {
             let mut data = vec![0u8; data_size];
             file.read_exact(&mut data).unwrap();
 
-            println!("  → データ: {:?}", &data[..data_size.min(16)]); // 最初の16バイトのみ表示
+            println!("  → データ: {:?}", &data[..data_size.min(16)]); // デバッグ表示では最初の16バイトのみ表示（print_value では全データを解釈）
             print_value(&data, field_type, count, le);
 
             // 元の位置に戻る
