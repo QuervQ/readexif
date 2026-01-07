@@ -102,7 +102,10 @@ fn main() {
             // オフセット先に移動してデータを読み取る
             file.seek(SeekFrom::Start(value_offset as u64)).unwrap();
             let mut data = vec![0u8; data_size];
-            file.read_exact(&mut data).unwrap();
+            if let Err(e) = file.read_exact(&mut data) {
+                eprintln!("データの読み込みに失敗しました: {}", e);
+                break;
+            }
 
             println!("  → データ: {:?}", &data[..data_size.min(16)]); // デバッグ表示では最初の16バイトのみ表示（print_value では全データを解釈）
             print_value(&data, field_type, count, le);
